@@ -12,6 +12,7 @@ import maccel
 IMAGE_ROOT = r"C:\Users\015179996\npu\imagenet_val20\imagenet_val20"
 VAL_LIST   = r"C:\Users\015179996\npu\imagenet_val20.txt"
 MXQ_PATH   = "simple_imagenet20_model.mxq"
+ONNX_PATH = "simple_imagenet20_model.onnx"
 
 NUM_IMAGES = 10   # set None for full validation
 
@@ -52,6 +53,38 @@ for fname, label in samples:
     labels.append(label)
 
 print(labels)
+
+# -----------------------------
+# CPU Inference (Onnx runtime)
+# -----------------------------
+cpu_session = ort.InferenceSession(ONNX_PATH)
+input_name = cpu_session.get_inputs()[0].name
+
+for _ in range(3):  # warmup
+    cpu_session.run(None, {input_name: test_images[0]})
+
+cpu_times = []
+cpu_preds = []
+
+for img in test_images:
+    start = time.perf_counter()
+
+    outputs = cpu_session.run(None, {input_name: img})
+
+    elapsed = (time.perf_counter() - start) * 1000
+    cpu_times.append(elapsed)
+
+    logits = outputs[0]
+
+    # Handle batch vs non-batch safely
+    if logits.ndim == 2:
+        logits = logits[0]
+
+    pred_class = int(np.argmax(logits))
+    cpu_preds.append(pred_class)
+    print(f"Predicted class (ONNX): {pred_class}")
+
+cpu_mean = statistics.mean(cpu_times)
 
 # -----------------------------
 # NPU inference
@@ -102,6 +135,6 @@ model.dispose()
 # -----------------------------
 # Results
 # -----------------------------
-print(f"NPU: {npu_mean:.2f} ms/image ({1000/npu_mean:.1f} img/s)")
-print(f"NPU Accuracy: {npu_acc*100:.1f}%")
-
+print(f"CPU: {cpu_mean:.2f} ms/image ({1000/cpu_mean:.1f} img/sec)")
+print(f"NPU: {npu_mean:.2f} ms/image ({1000/npu_mean:.1f} img/sec)")
+print(f"Speedup: {cpu_mean/npu_mean:.1f}x")

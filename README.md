@@ -31,3 +31,9 @@ This repository is meant to track snapshots in developments for developing an Im
 # predict everything as the 2nd class (Roseate spoonbill)
 └──── report_epoch_003.pdf
 ```
+
+# References
+- [1] A ConvNet for the 2020s, https://arxiv.org/abs/2201.03545
+- [2] Searching for MobileNetV3, https://arxiv.org/abs/1905.02244
+- [3] EfficientNetV2, https://arxiv.org/abs/2104.00298
+- [4] FasterNet, https://arxiv.org/abs/2303.03667

@@ -24,7 +24,10 @@ This repository is meant to track snapshots in developments for developing an Im
 # More explicit shape and output for MXQ inference.
 ├──── imagenet_mla100.ipynb
 ├──── imagenet_mla100.py
-# Reported issues with inference.
-└──── issues.md
-
+# Add reporting helper and better evaluation helpers.
+└──── imagenet_mla100_02.ipynb
+└──── imagenet_mla100_02.py
+# A sample reporting PDF. Shows that model mainly collapses to 
+# predict everything as the 2nd class (Roseate spoonbill)
+└──── report_epoch_003.pdf
 ```

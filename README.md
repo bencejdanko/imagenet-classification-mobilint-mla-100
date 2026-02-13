@@ -12,4 +12,19 @@ This repository is meant to track snapshots in developments for developing an Im
 ├──── imagenet_mla100.py
 # Prepare report document frame
 └──── imagenet_mla.md
+|
+└── 2026-02-10/
+# Prepared an inference script on the MLA-100 device.
+├──── inference_script.py
+# Reported issues with inference.
+└──── issues.md
+|
+└── 2026-02-13/
+# Compilable model that states `Output Shape      = [1, 1, 20]`.
+# More explicit shape and output for MXQ inference.
+├──── imagenet_mla100.ipynb
+├──── imagenet_mla100.py
+# Reported issues with inference.
+└──── issues.md
+
 ```

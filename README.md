@@ -30,10 +30,25 @@ This repository is meant to track snapshots in developments for developing an Im
 # A sample reporting PDF. Shows that model mainly collapses to 
 # predict everything as the 2nd class (Roseate spoonbill)
 └──── report_epoch_003.pdf
+# introducing the 2026-02-13-experimental model,
+# based off of techniques in papers [1, 2, 3, 4]
+└──── imagenet_mla100_03.ipynb
+└──── imagenet_mla100_03.py
 ```
+
+## Ablations
+
+### Model Summaries
+
+| Model | Train Accuracy | Validation Accuracy |
+| --- | --- | --- |
+| 2026-02-05-experimental | 5.00% | 5.00% |
+| 2026-02-13-experimental | 33.23% | 29.30% |
+
 
 # References
 - [1] A ConvNet for the 2020s, https://arxiv.org/abs/2201.03545
 - [2] Searching for MobileNetV3, https://arxiv.org/abs/1905.02244
 - [3] EfficientNetV2, https://arxiv.org/abs/2104.00298
 - [4] FasterNet, https://arxiv.org/abs/2303.03667
+

@@ -4,7 +4,25 @@ This repository is meant to track snapshots in developments for developing an Im
 
 [This companion repository](https://github.com/bencejdanko/compiler-evaluation-server) is meant to be used compilations over `curl`.
 
+### Summaries
+
+| Model | Train Accuracy | Validation Accuracy |
+| --- | --- | --- |
+| 2026-02-05-experimental | 5.00% | 5.00% |
+| 2026-02-13-experimental | 33.23% | 29.30% |
+
+
+## References
+- [1] A ConvNet for the 2020s, https://arxiv.org/abs/2201.03545
+- [2] Searching for MobileNetV3, https://arxiv.org/abs/1905.02244
+- [3] EfficientNetV2, https://arxiv.org/abs/2104.00298
+- [4] FasterNet, https://arxiv.org/abs/2303.03667
+
+
+## Contents
+
 ```
+imagenet-classification-mobilint-mla-100
 ├──
 └── 2026-02-05/
 # Prepared baseline data preparation, dataloader, DNN model, and export
@@ -35,20 +53,4 @@ This repository is meant to track snapshots in developments for developing an Im
 └──── imagenet_mla100_03.ipynb
 └──── imagenet_mla100_03.py
 ```
-
-## Ablations
-
-### Model Summaries
-
-| Model | Train Accuracy | Validation Accuracy |
-| --- | --- | --- |
-| 2026-02-05-experimental | 5.00% | 5.00% |
-| 2026-02-13-experimental | 33.23% | 29.30% |
-
-
-# References
-- [1] A ConvNet for the 2020s, https://arxiv.org/abs/2201.03545
-- [2] Searching for MobileNetV3, https://arxiv.org/abs/1905.02244
-- [3] EfficientNetV2, https://arxiv.org/abs/2104.00298
-- [4] FasterNet, https://arxiv.org/abs/2303.03667
 

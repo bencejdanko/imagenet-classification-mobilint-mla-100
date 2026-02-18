@@ -10,6 +10,7 @@ This repository is meant to track snapshots in developments for developing an Im
 | --- | --- | --- |
 | 2026-02-05-experimental | 5.00% | 5.00% |
 | 2026-02-13-experimental | 33.23% | 29.30% |
+| 2026-02-17-experimental-resnet-maps | 63.7% | 51.30% | 
 
 
 ## References
@@ -52,5 +53,11 @@ imagenet-classification-mobilint-mla-100
 # based off of techniques in papers [1, 2, 3, 4]
 └──── imagenet_mla100_03.ipynb
 └──── imagenet_mla100_03.py
+|
+└── 2026-02-17/
+# Utilize ResNet50 to create saliency maps (15x15).
+# Add a squeeze and excite blocks to model.
+└──── imagenet_mla100_resnet_maps.ipynb
+└──── imagenet_mla100_resnet_maps.py
 ```
 

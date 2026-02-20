@@ -13,10 +13,7 @@ This repository is meant to track snapshots in developments for developing an Im
 | 2026-02-17-experimental-resnet-maps<sup>1</sup> | 63.7% | 51.30% | 
 | 2026-02-20-experimental-ssl1 | 37.33% | 34.00% |
 
-<small>
-1. Used preprocessed DINO2 GradCam annotations
-</small>
-
+[1] Used preprocessed DINO2 GradCam annotations
 
 ![alt text](image.png)
 

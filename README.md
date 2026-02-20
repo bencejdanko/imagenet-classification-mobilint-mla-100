@@ -20,13 +20,19 @@ This repository is meant to track snapshots in developments for developing an Im
 
 ![alt text](image.png)
 
-Example output for `2026-02-20-experimental-ssl1`, experimenting with masking and decoder
+Example output for `2026-02-20-experimental-ssl1`, experimenting with masking and encoder/decoder
 
 ## References
 - [1] A ConvNet for the 2020s, https://arxiv.org/abs/2201.03545
 - [2] Searching for MobileNetV3, https://arxiv.org/abs/1905.02244
 - [3] EfficientNetV2, https://arxiv.org/abs/2104.00298
 - [4] FasterNet, https://arxiv.org/abs/2303.03667
+- [5] ConvMAE, https://arxiv.org/abs/2205.03892
+- [6] Convolutional Masked Image Modeling, https://openaccess.thecvf.com/content/WACV2024/papers/Yang_Convolutional_Masked_Image_Modeling_for_Dense_Prediction_Tasks_on_Pathology_WACV_2024_paper.pdf
+- [7] masked autoencoders (MAE), https://arxiv.org/abs/2111.06377
+- [8] Multi-level Optimized Mask Autoencoder (MLO-MAE), https://arxiv.org/abs/2402.18128
+
+
 
 ## Contents
 

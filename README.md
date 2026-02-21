@@ -77,5 +77,10 @@ imagenet-classification-mobilint-mla-100
 # preprocessing
 └──── imagenet_mla100_ssl1.ipynb
 └──── imagenet_mla100_ssl2.py
+# Repurpose ipynb functionality into a package,
+# that is run with a more basic runner.
+└──── imagenet_mla100_ssl1/
+└──── imagenet_mla100_ssl1_runner.ipynb
+└──── imagenet_mla100_ssl1_runner.py
 ```
 

@@ -73,16 +73,11 @@ for epoch in range(config.NUM_EPOCHS):
                   f"Acc: {100.*correct_train/total_train:.2f}% | "
                   f"Cls Loss: {loss_cls.item():.4f} | Recon Loss: {loss_recon.item():.4f}")
 
-    # --- Validation & Mismatch Analysis ---
-    # Note: Assuming your val_loader still uses the ORIGINAL ImageNet20Dataset without masking.
-    # Validation should always be done on clean, unmasked images.
-    model.eval()
-    val_correct, val_total = 0, 0
-    mismatches = []
-
     visualize_reconstruction(masked_images, target_images, reconstructed_img, attention_map, epoch+1)
 
     # --- Validation & Mismatch Analysis ---
+    # Note: Assuming your val_loader still uses the ORIGINAL ImageNet20Dataset without masking.
+    # Validation should always be done on clean, unmasked images.
     model.eval()
     val_correct, val_total = 0, 0
     mismatches = []

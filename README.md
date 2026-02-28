@@ -2,8 +2,6 @@
 
 This repository is meant to track snapshots in developments for developing an ImageNet Classifier for the Mobilint MLA100 NPU chip.
 
-[This companion repository](https://github.com/bencejdanko/compiler-evaluation-server) is meant to be used compilations over `curl`.
-
 ### Summaries
 
 | Model | Train Accuracy | Validation Accuracy |
@@ -16,20 +14,6 @@ This repository is meant to track snapshots in developments for developing an Im
 [1] Used preprocessed DINO2 GradCam annotations
 
 ![alt text](image.png)
-
-Example output for `2026-02-20-experimental-ssl1`, experimenting with masking and encoder/decoder
-
-## References
-- [1] A ConvNet for the 2020s, https://arxiv.org/abs/2201.03545
-- [2] Searching for MobileNetV3, https://arxiv.org/abs/1905.02244
-- [3] EfficientNetV2, https://arxiv.org/abs/2104.00298
-- [4] FasterNet, https://arxiv.org/abs/2303.03667
-- [5] ConvMAE, https://arxiv.org/abs/2205.03892
-- [6] Convolutional Masked Image Modeling, https://openaccess.thecvf.com/content/WACV2024/papers/Yang_Convolutional_Masked_Image_Modeling_for_Dense_Prediction_Tasks_on_Pathology_WACV_2024_paper.pdf
-- [7] masked autoencoders (MAE), https://arxiv.org/abs/2111.06377
-- [8] Multi-level Optimized Mask Autoencoder (MLO-MAE), https://arxiv.org/abs/2402.18128
-
-
 
 ## Contents
 
@@ -82,5 +66,14 @@ imagenet-classification-mobilint-mla-100
 └──── imagenet_mla100_ssl1/
 └──── imagenet_mla100_ssl1_runner.ipynb
 └──── imagenet_mla100_ssl1_runner.py
+|
+└── 2026-02-27/
+#example implementation with  k-cutmix
+└──── imagenet_mla100_k_cutmix_data_augmentation.ipynb
+# add most data augmentations
+└──── imagenet_mla100_cutmix_data_augmentation_all.ipynb
+# add all augmentations + fix SEAM regularization
+└──── imagenet_mla100_cutmix_base_w_augmentations.ipynb
+└──── imagenet_mla100_cutmix_base_w_augmentations_2.ipynb
 ```
 

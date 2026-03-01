@@ -1,3 +1,5 @@
+import torch
+
 def apply_mixup(images, labels, alpha=1.0):
     B = images.size(0)
     device = images.device

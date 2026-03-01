@@ -87,7 +87,6 @@ def display_model_summary(model, input_size=(1, 3, 240, 240)):
     Displays the model architecture summary.
     Attempts to use 'torchinfo' for a detailed summary, falls back to standard print.
     """
-    print("\n" + "="*20 + " Model Architecture " + "="*20)
     try:
         from torchinfo import summary
         print(summary(model, input_size=input_size, col_names=["input_size", "output_size", "num_params", "kernel_size"]))
@@ -95,4 +94,3 @@ def display_model_summary(model, input_size=(1, 3, 240, 240)):
         print("\ntorchinfo not installed. For a prettier table, run: !pip install torchinfo")
         print("\nStandard PyTorch Print:")
         print(model)
-    print("="*60 + "\n")

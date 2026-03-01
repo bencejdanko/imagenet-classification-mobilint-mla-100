@@ -52,7 +52,7 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
 
     criterion_cls = nn.CrossEntropyLoss()
     criterion_batch = nn.CrossEntropyLoss(reduction='none')
-    batch_augmentor = BatchAugmentor(p=0.5)
+    batch_augmentor = BatchAugmentor(mode=getattr(config, 'AUG_MODE', 'none'), p=0.5)
     
     # Initialize WandB
     wandb.init(
@@ -63,6 +63,8 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             "batch_size": config.BATCH_SIZE,
             "epochs": config.NUM_EPOCHS,
             "architecture": "ResNet10",
+            "aug_mode": getattr(config, 'AUG_MODE', 'none'),
+            "class_aware_sampling": getattr(config, 'CLASS_AWARE_SAMPLING', False),
         }
     )
 

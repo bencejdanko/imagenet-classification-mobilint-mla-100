@@ -12,34 +12,36 @@ from augmentations.resize_mix import apply_resizemix
 from augmentations.mixup import apply_mixup
 
 class BatchAugmentor:
-    """Apply batch-level augmentations like mixup, cutmix, fmix."""
-    def __init__(self, p=0.5):
+    """Apply batch-level augmentations by standard choice mode over custom rules."""
+    def __init__(self, mode='none', p=0.5):
+        self.mode = mode
         self.p = p
 
     def __call__(self, images, labels):
         # By default, pass through
-        if random.random() > self.p:
+        if self.mode == 'none' or random.random() > self.p:
             device = images.device
             return images, labels, labels, torch.ones(images.size(0), device=device)
 
-        # Determine which mix to apply based on class presence (remediating specific confusions)
-        has_15 = (labels == 15).any().item()
-        has_animals = ((labels == 9) | (labels == 6) | (labels == 8)).any().item()
-
-        if has_15:
-            # Remediate class 15 confusions
-            mixed_images, target_a, target_b, actual_lam, mask, rand_index = apply_fmix(images, labels)
-            return mixed_images, target_a, target_b, actual_lam
-        elif has_animals:
-            # Distinguish animals
-            if random.random() > 0.5:
-                res = apply_cutmix(images, labels)
-            else:
-                res = apply_resizemix(images, labels)
-            return res[0], res[1], res[2], res[3]
-        else:
+        if self.mode == 'mixup':
             res = apply_mixup(images, labels)
             return res[0], res[1], res[2], res[3]
+        elif self.mode == 'cutmix':
+            res = apply_cutmix(images, labels)
+            return res[0], res[1], res[2], res[3]
+        elif self.mode == 'fmix':
+            res = apply_fmix(images, labels)
+            return res[0], res[1], res[2], res[3]
+        elif self.mode == 'resizemix':
+            res = apply_resizemix(images, labels)
+            return res[0], res[1], res[2], res[3]
+        elif self.mode == 'hmix':
+            from augmentations.hmix import apply_hmix
+            res = apply_hmix(images, labels)
+            return res[0], res[1], res[2], res[3]
+        else:
+            device = images.device
+            return images, labels, labels, torch.ones(images.size(0), device=device)
 
 def get_dataloaders():
     config = Config()
@@ -63,14 +65,16 @@ def get_dataloaders():
     print("Loading datasets...")
     train_dataset = ImageNet20Dataset(txt_file=config.TRAIN_LIST, root_dir=config.IMAGE_ROOT, transform=train_transform)
 
-    # Class aware sampling
-    labels = [label for _, label in train_dataset.img_labels]
-    class_counts = np.bincount(labels)
-    class_weights = 1.0 / (class_counts + 1e-6)
-    sample_weights = [class_weights[label] for label in labels]
-    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(train_dataset), replacement=True)
-
-    train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, sampler=sampler)
+    # Class aware sampling or standard shuffling based on config
+    if getattr(config, 'CLASS_AWARE_SAMPLING', False):
+        labels = [label for _, label in train_dataset.img_labels]
+        class_counts = np.bincount(labels)
+        class_weights = 1.0 / (class_counts + 1e-6)
+        sample_weights = [class_weights[label] for label in labels]
+        sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(train_dataset), replacement=True)
+        train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, sampler=sampler)
+    else:
+        train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
     print(f"Training dataset loaded: {len(train_dataset)} images found.")
 
     val_dataset = ImageNet20Dataset(txt_file=config.VAL_LIST, root_dir=config.VAL_IMAGE_ROOT, transform=transform_val)

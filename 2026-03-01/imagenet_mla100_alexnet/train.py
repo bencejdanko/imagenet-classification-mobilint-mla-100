@@ -56,11 +56,6 @@ for epoch in range(config.NUM_EPOCHS):
         total_train += labels.size(0)
         correct_train += predicted.eq(labels).sum().item()
 
-        if (i + 1) % 10 == 0:
-            print(f"Epoch [{epoch+1}] Step [{i+1}/{len(train_loader)}] | "
-                  f"Acc: {100.*correct_train/total_train:.2f}% | "
-                  f"Loss: {loss.item():.4f}")
-
     # --- Validation ---
     model.eval()
     val_correct, val_total = 0, 0
@@ -87,4 +82,5 @@ for epoch in range(config.NUM_EPOCHS):
                     'pred': predicted[idx].item()
                 })
 
-    print(f"\n>> Epoch {epoch+1} Summary: Val Acc: {100.*val_correct/val_total:.2f}% <<\n")
+    print(f"\n>> Epoch {epoch+1} Summary: Train Acc: {100.*correct_train/total_train:.2f}% | Val Acc: {100.*val_correct/val_total:.2f}% <<\n")
+

@@ -7,10 +7,10 @@ class Config:
     VAL_IMAGE_ROOT = os.path.join(BASE_DIR, 'imagenet_val20')
     VAL_LIST = os.path.join(BASE_DIR, 'imagenet_val20.txt')
 
-    BATCH_SIZE = 512
+    BATCH_SIZE = 1024
     NUM_CLASSES = 20
     INPUT_SHAPE = (240, 240)
-    NUM_EPOCHS = 5
+    NUM_EPOCHS = 30
     LEARNING_RATE = 0.001
     
     # WandB and Checkpointing

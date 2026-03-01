@@ -23,9 +23,14 @@ class ImageNet20Dataset(Dataset):
         path_nested = os.path.join(self.root_dir, filename.split('_')[0], filename)
         full_path = path_flat if os.path.exists(path_flat) else path_nested
 
+        if not os.path.exists(full_path):
+            print(f"Warning: Image not found at {full_path}. Check your IMAGE_ROOT / VAL_IMAGE_ROOT config.")
+            return torch.zeros(3, 224, 224), label
+
         try:
             image = Image.open(full_path).convert("RGB")
-        except Exception:
+        except Exception as e:
+            print(f"Warning: Error opening image {full_path}: {e}")
             image = Image.new('RGB', (240, 240))
 
         # apply augmentations

@@ -2,7 +2,7 @@ import os
 
 class Config:
     BASE_DIR = '/content'
-    IMAGE_ROOT = os.path.join(BASE_DIR, 'imagenet_train20')
+    IMAGE_ROOT = os.path.join(BASE_DIR, 'imagenet_train20a')
     TRAIN_LIST = os.path.join(BASE_DIR, 'imagenet_train20.txt')
     VAL_IMAGE_ROOT = os.path.join(BASE_DIR, 'imagenet_val20')
     VAL_LIST = os.path.join(BASE_DIR, 'imagenet_val20.txt')

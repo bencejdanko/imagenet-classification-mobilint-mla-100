@@ -94,3 +94,41 @@ def display_model_summary(model, input_size=(1, 3, 240, 240)):
         print("\ntorchinfo not installed. For a prettier table, run: !pip install torchinfo")
         print("\nStandard PyTorch Print:")
         print(model)
+
+def plot_gradcam_samples(images, masks, labels, model, device, num_samples=5):
+    """
+    Visualizes original images alongside their Grad-CAM overlays.
+    """
+    inv_normalize = lambda x: x * torch.tensor([0.229, 0.224, 0.225]).to(device).view(3, 1, 1) + \
+                              torch.tensor([0.485, 0.456, 0.406]).to(device).view(3, 1, 1)
+    
+    plt.figure(figsize=(15, num_samples * 3))
+    
+    model.eval()
+    for i in range(min(num_samples, images.shape[0])):
+        # Unnormalize and prepare image
+        img_tensor = images[i]
+        img = inv_normalize(img_tensor).permute(1, 2, 0).cpu().numpy()
+        img = np.clip(img, 0, 1)
+        mask = masks[i].squeeze().cpu().numpy()
+        
+        # Get prediction
+        with torch.no_grad():
+            pred_logit = model(img_tensor.unsqueeze(0))
+            pred = pred_logit.argmax(dim=1).item()
+        
+        # Original Image
+        plt.subplot(num_samples, 2, 2*i + 1)
+        plt.imshow(img)
+        plt.title(f"True Label: {labels[i].item()}")
+        plt.axis('off')
+        
+        # Overlayed GRAD-CAM
+        plt.subplot(num_samples, 2, 2*i + 2)
+        plt.imshow(img)
+        plt.imshow(mask, cmap='jet', alpha=0.4)
+        plt.title(f"Grad-CAM (Pred: {pred})")
+        plt.axis('off')
+        
+    plt.tight_layout()
+    plt.show()

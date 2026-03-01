@@ -9,9 +9,9 @@ config = Config()
 
 # alter the training dataset for training
 train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(config.INPUT_SHAPE, scale=(0.7, 1.0)),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
+    # transforms.RandomResizedCrop(config.INPUT_SHAPE, scale=(0.7, 1.0)),
+    # transforms.RandomHorizontalFlip(p=0.5),
+    # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
     transforms.ToTensor(),
 ])
 

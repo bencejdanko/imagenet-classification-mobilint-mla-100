@@ -11,12 +11,11 @@ This repository is meant to track snapshots in developments for developing an Im
 | 2026-02-17-experimental-resnet-maps<sup>1</sup> | 63.7% | 51.30% | |
 | 2026-02-20-experimental-ssl1 | 37.33% | 34.00% | |
 | 2026-02-28-experimental-1 |  | 20.30% | 10 epochs on mixup-only training |
-| 2026-02-28-experimental-2 |  | 11.80% | mixup training followed by a mix of HMix, MixUp, CutMix, ResizeMix, and FMix for 10 extra epochs |
-| 2026-02-28-experimental-3 |  | 
 
 [1] Used preprocessed DINO2 GradCam annotations
 
-![alt text](image.png)
+I discovered at this point that premature data augmentations were not very helpful. It's more useful to start from a baseline, evaluate struggling classes, and then add data augmentations and other techniques as needed. It's also best to create more comprehensive reports and ablations to see what works or not. 
+
 
 ## Contents
 

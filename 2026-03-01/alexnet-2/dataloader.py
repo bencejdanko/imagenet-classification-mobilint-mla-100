@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 from torch.utils.data import Dataset
+import torch
 
 class ImageNet20Dataset(Dataset):
     def __init__(self, txt_file, root_dir, transform=None):

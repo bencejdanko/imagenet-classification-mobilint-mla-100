@@ -1,21 +1,13 @@
 # ImageNet Classification on the MLA-100
 
-This repository is meant to track snapshots in developments for developing an ImageNet Classifier for the Mobilint MLA100 NPU chip.
+This repository is meant to track snapshots in developments for developing an ImageNet Classifier for the Mobilint MLA100 NPU chip. You can read my full report here.
 
-### Summaries
+## Summary
 
-| Model | Train Accuracy | Validation Accuracy | Details |
-| --- | --- | --- | --- | 
-| 2026-02-05-experimental | 5.00% | 5.00% | |
-| 2026-02-13-experimental | 33.23% | 29.30% | |
-| 2026-02-17-experimental-resnet-maps<sup>1</sup> | 63.7% | 51.30% | |
-| 2026-02-20-experimental-ssl1 | 37.33% | 34.00% | |
-| 2026-02-28-experimental-1 |  | 20.30% | 10 epochs on mixup-only training |
 
-[1] Used preprocessed DINO2 GradCam annotations
+## Findings
 
-I discovered at this point that premature data augmentations were not very helpful. It's more useful to start from a baseline, evaluate struggling classes, and then add data augmentations and other techniques as needed. It's also best to create more comprehensive reports and ablations to see what works or not. 
-
+Data augmentations are not useful when arbitrarily applied. 
 
 ## Contents
 

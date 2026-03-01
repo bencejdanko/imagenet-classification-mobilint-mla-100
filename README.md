@@ -77,5 +77,10 @@ imagenet-classification-mobilint-mla-100
 # add all augmentations + fix SEAM regularization
 └──── imagenet_mla100_cutmix_base_w_augmentations.ipynb
 └──── imagenet_mla100_cutmix_base_w_augmentations_2.ipynb
+|
+└── 2026-03-01/
+# alexnet implementation baseline
+└──── alexnet.ipynb
+└──── alexnet/
 ```
 

@@ -1,8 +1,12 @@
+import os
+
 class Config:
-    IMAGE_ROOT = 'imagenet_train20a/imagenet_train20a'
-    TRAIN_LIST = 'imagenet_train20.txt'
-    VAL_IMAGE_ROOT = 'imagenet_val20/imagenet_val20'
-    VAL_LIST = 'imagenet_val20.txt'
+    BASE_DIR = '/content'
+    IMAGE_ROOT = os.path.join(BASE_DIR, 'imagenet_train20')
+    TRAIN_LIST = os.path.join(BASE_DIR, 'imagenet_train20.txt')
+    VAL_IMAGE_ROOT = os.path.join(BASE_DIR, 'imagenet_val20')
+    VAL_LIST = os.path.join(BASE_DIR, 'imagenet_val20.txt')
+
     BATCH_SIZE = 512
     NUM_CLASSES = 20
     INPUT_SHAPE = (240, 240)
@@ -12,7 +16,7 @@ class Config:
     # WandB and Checkpointing
     WANDB_PROJECT = 'resnet10-imagenet-20'
     WANDB_ENTITY = 'bdanko' # Set this to your wandb username if needed
-    CHECKPOINT_DIR = 'checkpoints'
+    CHECKPOINT_DIR = os.path.join(BASE_DIR, 'checkpoints')
     SAVE_MODEL = True
 
     @classmethod

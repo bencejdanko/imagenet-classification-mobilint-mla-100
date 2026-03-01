@@ -12,34 +12,37 @@ def download_dataset():
     
     print(f"Downloading zipped dataset from Hugging Face: {repo_id}")
     
-    # 1. Download only the zips and txt files
+    # Create base directory if it doesn't exist
+    if not os.path.exists(config.BASE_DIR):
+        print(f"Creating base directory: {config.BASE_DIR}")
+        os.makedirs(config.BASE_DIR, exist_ok=True)
+
+    # 1. Download zips and txt files to the absolute base directory
     snapshot_download(
         repo_id=repo_id,
         repo_type="dataset",
-        local_dir=".",
+        local_dir=config.BASE_DIR,
         allow_patterns=["*.zip", "*.txt"],
         local_dir_use_symlinks=False
     )
     
-    # 2. Extract zips to their respective destinations
+    # 2. Extract zips using absolute paths
     extraction_map = {
-        'imagenet_train20.zip': config.IMAGE_ROOT,
-        'imagenet_val20.zip': config.VAL_IMAGE_ROOT
+        'imagenet_train20.zip': config.BASE_DIR,
+        'imagenet_val20.zip': config.BASE_DIR
     }
 
     for zip_name, target_dir in extraction_map.items():
-        if os.path.exists(zip_name):
-            print(f"Extracting {zip_name} to {target_dir}...")
+        zip_path = os.path.join(config.BASE_DIR, zip_name)
+        if os.path.exists(zip_path):
+            print(f"Extracting {zip_path} to {target_dir}...")
             if not os.path.exists(target_dir):
-                os.makedirs(target_dir)
+                os.makedirs(target_dir, exist_ok=True)
             
-            with zipfile.ZipFile(zip_name, 'r') as zip_ref:
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(target_dir)
-            
-            # Optional: remove the zip after extraction to save space in Colab
-            # os.remove(zip_name)
         else:
-            print(f"Warning: {zip_name} not found after download.")
+            print(f"Warning: {zip_path} not found after download.")
 
     print("Dataset preparation complete.")
 

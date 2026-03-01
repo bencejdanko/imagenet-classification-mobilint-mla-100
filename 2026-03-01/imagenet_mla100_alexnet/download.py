@@ -8,7 +8,7 @@ def download_dataset():
     Downloads zips from Hugging Face and extracts them to match Config structure.
     """
     config = Config()
-    repo_id = "bdanko/imagenet__20class_subset"
+    repo_id = "bdanko/imagenetsubset20"
     
     print(f"Downloading zipped dataset from Hugging Face: {repo_id}")
     

@@ -9,3 +9,24 @@ class Config:
     NUM_EPOCHS = 5
     LEARNING_RATE = 0.001
 
+    @classmethod
+    def to_table(cls):
+        """
+        Returns a string representation of the config hyperparameters in a table format.
+        """
+        header = f"{'Hyperparameter':<20} | {'Value':<20}"
+        separator = "-" * 43
+        lines = [header, separator]
+        
+        # Filter out built-in attributes, methods, and file paths
+        exclude_keywords = ['ROOT', 'LIST', 'PATH']
+        attrs = {k: v for k, v in cls.__dict__.items() 
+                if not k.startswith('__') 
+                and not isinstance(v, (classmethod, staticmethod)) 
+                and not callable(v)
+                and not any(kw in k for kw in exclude_keywords)}
+        
+        for k, v in attrs.items():
+            lines.append(f"{k:<20} | {str(v):<20}")
+        return "\n".join(lines)
+

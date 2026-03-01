@@ -81,3 +81,18 @@ def display_classification_report(model, val_loader, device, class_names=None):
     report = classification_report(y_true, y_pred, target_names=class_names)
     print("\nClassification Report:\n")
     print(report)
+
+def display_model_summary(model, input_size=(1, 3, 240, 240)):
+    """
+    Displays the model architecture summary.
+    Attempts to use 'torchinfo' for a detailed summary, falls back to standard print.
+    """
+    print("\n" + "="*20 + " Model Architecture " + "="*20)
+    try:
+        from torchinfo import summary
+        print(summary(model, input_size=input_size, col_names=["input_size", "output_size", "num_params", "kernel_size"]))
+    except ImportError:
+        print("\ntorchinfo not installed. For a prettier table, run: !pip install torchinfo")
+        print("\nStandard PyTorch Print:")
+        print(model)
+    print("="*60 + "\n")

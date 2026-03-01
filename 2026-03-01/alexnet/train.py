@@ -1,5 +1,7 @@
+import os
 import torch
 import torch.nn as nn
+import wandb
 from augmentation import get_dataloaders
 from init_hyperparameters import initialize_training
 from config import Config
@@ -38,14 +40,42 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
         print("Loading data...")
         train_loader, val_loader = get_dataloaders()
 
+    # Load from checkpoint if exists
+    checkpoint_path = os.path.join(config.CHECKPOINT_DIR, 'last_model.pth')
+    if os.path.exists(checkpoint_path):
+        print(f"Loading checkpoint from {checkpoint_path}...")
+        try:
+            model.load_state_dict(torch.load(checkpoint_path))
+            print("Successfully loaded model weights.")
+        except Exception as e:
+            print(f"Could not load checkpoint: {e}")
+
     criterion_cls = nn.CrossEntropyLoss()
     
+    # Initialize WandB
+    wandb.init(
+        project=config.WANDB_PROJECT,
+        entity=config.WANDB_ENTITY,
+        config={
+            "learning_rate": config.LEARNING_RATE,
+            "batch_size": config.BATCH_SIZE,
+            "epochs": config.NUM_EPOCHS,
+            "architecture": "AlexNet",
+        }
+    )
+
+    # Prepare checkpoint directory
+    if config.SAVE_MODEL:
+        os.makedirs(config.CHECKPOINT_DIR, exist_ok=True)
+
     history = {
         'train_loss': [],
         'train_acc': [],
         'val_loss': [],
         'val_acc': []
     }
+
+    best_val_acc = 0.0
 
     print(f"Starting training for {config.NUM_EPOCHS} epochs...")
 
@@ -86,9 +116,31 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
         history['val_loss'].append(val_loss)
         history['val_acc'].append(val_acc)
 
-        print(f"\n>> Epoch {epoch+1} Summary: Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% | Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}% <<\n")
+        # --- WandB Logging ---
+        wandb.log({
+            "epoch": epoch + 1,
+            "train_loss": train_loss,
+            "train_acc": train_acc,
+            "val_loss": val_loss,
+            "val_acc": val_acc
+        })
+
+        # --- Checkpointing ---
+        if config.SAVE_MODEL:
+            # Save latest
+            torch.save(model.state_dict(), os.path.join(config.CHECKPOINT_DIR, 'last_model.pth'))
+            
+            # Save best
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                torch.save(model.state_dict(), os.path.join(config.CHECKPOINT_DIR, 'best_model.pth'))
+                wandb.log({"best_val_acc": best_val_acc})
+                print(f"New best model saved with accuracy: {val_acc:.2f}%")
+
+        print(f"\n>> Epoch {epoch+1} Summary: Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% | Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}% <<")
 
     print("Training complete.")
+    wandb.finish()
     return model, history
 
 if __name__ == "__main__":

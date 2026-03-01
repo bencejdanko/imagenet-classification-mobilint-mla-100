@@ -9,16 +9,18 @@ def get_dataloaders():
 
     # alter the training dataset for training
     train_transform = transforms.Compose([
-        # transforms.RandomResizedCrop(config.INPUT_SHAPE, scale=(0.7, 1.0)),
-        # transforms.RandomHorizontalFlip(p=0.5),
-        # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
+        transforms.RandomResizedCrop(config.INPUT_SHAPE, scale=(0.7, 1.0)),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
         transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     # keep validation unaltered
     transform_val = transforms.Compose([
         transforms.Resize(config.INPUT_SHAPE),
         transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     print("Loading datasets...")

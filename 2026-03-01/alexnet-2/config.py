@@ -6,7 +6,7 @@ class Config:
     BATCH_SIZE = 512
     NUM_CLASSES = 20
     INPUT_SHAPE = (240, 240)
-    NUM_EPOCHS = 10
+    NUM_EPOCHS = 5
     LEARNING_RATE = 0.001
 
     @classmethod

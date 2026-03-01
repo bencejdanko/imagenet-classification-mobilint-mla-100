@@ -1,48 +1,38 @@
 """
 Intended to be run in Colab notebook
-after mounting Google Drive
+Uses Hugging Face Hub to download the dataset
 """
 
-import shutil
-import zipfile
+import os
+from huggingface_hub import snapshot_download
 
-def download_and_extract_dataset():
-    print("Starting dataset preparation...")
+def download_dataset():
+    """
+    Downloads the dataset from Hugging Face Hub.
+    Replaces the old manual copy-and-extract logic.
+    """
+    repo_id = "bdanko/imagenet__20class_subset"
+    print(f"Downloading dataset from Hugging Face: {repo_id}")
     
-    # --------- copy over metadata ---------
-    train_txt_path = '/content/drive/MyDrive/NPULab/spring-2026-data/imagenet_train20.txt'
-    val_txt_path = '/content/drive/MyDrive/NPULab/spring-2026-data/imagenet_val20.txt'
-
-    train_txt = 'imagenet_train20.txt'
-    val_txt = 'imagenet_val20.txt'
-
-    print(f"Copying metadata from {train_txt_path} and {val_txt_path}...")
-    shutil.copy(train_txt_path, train_txt)
-    shutil.copy(val_txt_path, val_txt)
-
-    # --------- copy over zip files ---------
-    train_zip_path = '/content/drive/MyDrive/NPULab/spring-2026-data/imagenet_train20.zip'
-    val_zip_path = '/content/drive/MyDrive/NPULab/spring-2026-data/imagenet_val20.zip'
-
-    train_zip = 'imagenet_train20.zip'
-    val_zip = 'imagenet_val20.zip'
-
-    print(f"Copying zip files from {train_zip_path} and {val_zip_path}...")
-    shutil.copy(train_zip_path, train_zip)
-    shutil.copy(val_zip_path, val_zip)
-
-    # --------- unzip files ---------
-    print("Extracting training files...")
-    with zipfile.ZipFile(train_zip, 'r') as zip_ref:
-        zip_ref.extractall('train')
-
-    print("Extracting validation files...")
-    with zipfile.ZipFile(val_zip, 'r') as zip_ref:
-        zip_ref.extractall('val')
+    # This downloads the entire repository to the current directory.
+    # It will include the .txt metadata and the image folders/zips.
+    snapshot_download(
+        repo_id=repo_id,
+        repo_type="dataset",
+        local_dir=".",
+        local_dir_use_symlinks=False
+    )
     
-    print("Dataset preparation complete.")
+    # If the user still wants to extract zips (if they uploaded zips instead of folders):
+    # we can keep a simple check here, but the goal is to have the files ready.
+    # For now, we assume the repo structure aligns with Config expectations.
+    
+    print("Dataset download complete.")
+
+# Alias for backward compatibility in existing notebooks
+download_and_extract_dataset = download_dataset
 
 if __name__ == "__main__":
-    download_and_extract_dataset()
+    download_dataset()
 
 

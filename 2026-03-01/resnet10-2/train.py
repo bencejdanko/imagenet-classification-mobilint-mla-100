@@ -2,7 +2,7 @@ import os
 import torch
 import torch.nn as nn
 import wandb
-from augmentation import get_dataloaders
+from augmentation import get_dataloaders, BatchAugmentor
 from init_hyperparameters import initialize_training
 from config import Config
 
@@ -51,6 +51,8 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             print(f"Could not load checkpoint: {e}")
 
     criterion_cls = nn.CrossEntropyLoss()
+    criterion_batch = nn.CrossEntropyLoss(reduction='none')
+    batch_augmentor = BatchAugmentor(p=0.5)
     
     # Initialize WandB
     wandb.init(
@@ -88,13 +90,18 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             images = images.to(device)
             labels = labels.to(device)
 
+            images, target_a, target_b, lam = batch_augmentor(images, labels)
+
             optimizer.zero_grad()
 
             # Forward Pass
             logits = model(images)
 
             # Calculate Loss
-            loss = criterion_cls(logits, labels)
+            loss_1 = criterion_batch(logits, target_a)
+            loss_2 = criterion_batch(logits, target_b)
+            loss = (loss_1 * lam + loss_2 * (1. - lam)).mean()
+            
             running_loss += loss.item()
 
             loss.backward()
@@ -103,7 +110,8 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             # Track Train Acc
             _, predicted = logits.max(1)
             total_train += labels.size(0)
-            correct_train += predicted.eq(labels).sum().item()
+            dominant_target = torch.where(lam > 0.5, target_a, target_b)
+            correct_train += predicted.eq(dominant_target).sum().item()
 
         # --- Validation ---
         val_loss, val_acc = validate(model, val_loader, criterion_cls, device)

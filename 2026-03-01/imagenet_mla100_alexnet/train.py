@@ -39,12 +39,20 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
         train_loader, val_loader = get_dataloaders()
 
     criterion_cls = nn.CrossEntropyLoss()
+    
+    history = {
+        'train_loss': [],
+        'train_acc': [],
+        'val_loss': [],
+        'val_acc': []
+    }
 
     print(f"Starting training for {config.NUM_EPOCHS} epochs...")
 
     for epoch in range(config.NUM_EPOCHS):
         model.train()
         total_train, correct_train = 0, 0
+        running_loss = 0.0
 
         for i, (images, labels) in enumerate(train_loader):
             images = images.to(device)
@@ -57,6 +65,7 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
 
             # Calculate Loss
             loss = criterion_cls(logits, labels)
+            running_loss += loss.item()
 
             loss.backward()
             optimizer.step()
@@ -67,34 +76,20 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             correct_train += predicted.eq(labels).sum().item()
 
         # --- Validation ---
-        model.eval()
-        val_correct, val_total = 0, 0
-        mismatches = []
+        val_loss, val_acc = validate(model, val_loader, criterion_cls, device)
+        
+        train_loss = running_loss / len(train_loader)
+        train_acc = 100. * correct_train / total_train
+        
+        history['train_loss'].append(train_loss)
+        history['train_acc'].append(train_acc)
+        history['val_loss'].append(val_loss)
+        history['val_acc'].append(val_acc)
 
-        with torch.no_grad():
-            for images, labels in val_loader:
-                images = images.to(device)
-                labels = labels.to(device)
-
-                logits = model(images)
-                _, predicted = logits.max(1)
-
-                val_total += labels.size(0)
-                val_correct += predicted.eq(labels).sum().item()
-
-                # Collect mismatches for debugging (optional)
-                mask = predicted.cpu() != labels.cpu()
-                if mask.any() and len(mismatches) < 3:
-                    idx = torch.where(mask)[0][0]
-                    mismatches.append({
-                        'img': images[idx].cpu(),
-                        'true': labels[idx].item(),
-                        'pred': predicted[idx].item()
-                    })
-
-        print(f"\n>> Epoch {epoch+1} Summary: Train Acc: {100.*correct_train/total_train:.2f}% | Val Acc: {100.*val_correct/val_total:.2f}% <<\n")
+        print(f"\n>> Epoch {epoch+1} Summary: Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% | Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}% <<\n")
 
     print("Training complete.")
+    return model, history
 
 if __name__ == "__main__":
     run_training()

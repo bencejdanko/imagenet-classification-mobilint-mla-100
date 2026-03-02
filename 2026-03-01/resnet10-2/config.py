@@ -15,7 +15,6 @@ class Config:
     
     # Training variations
     AUG_MODE = 'mixup' # Options: 'none', 'mixup', 'cutmix', 'fmix', 'resizemix', 'hmix'
-    CLASS_AWARE_SAMPLING = False
     
     # WandB and Checkpointing
     WANDB_PROJECT = 'resnet10-imagenet-20'

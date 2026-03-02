@@ -3,8 +3,6 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from dataloader import ImageNet20Dataset
 from config import Config
-from torch.utils.data import DataLoader, WeightedRandomSampler
-import numpy as np
 import random
 from augmentations.fmix import apply_fmix
 from augmentations.cutmix import apply_cutmix
@@ -65,16 +63,7 @@ def get_dataloaders():
     print("Loading datasets...")
     train_dataset = ImageNet20Dataset(txt_file=config.TRAIN_LIST, root_dir=config.IMAGE_ROOT, transform=train_transform)
 
-    # Class aware sampling or standard shuffling based on config
-    if getattr(config, 'CLASS_AWARE_SAMPLING', False):
-        labels = [label for _, label in train_dataset.img_labels]
-        class_counts = np.bincount(labels)
-        class_weights = 1.0 / (class_counts + 1e-6)
-        sample_weights = [class_weights[label] for label in labels]
-        sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(train_dataset), replacement=True)
-        train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, sampler=sampler)
-    else:
-        train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
     print(f"Training dataset loaded: {len(train_dataset)} images found.")
 
     val_dataset = ImageNet20Dataset(txt_file=config.VAL_LIST, root_dir=config.VAL_IMAGE_ROOT, transform=transform_val)

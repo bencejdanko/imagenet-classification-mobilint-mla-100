@@ -64,7 +64,6 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             "epochs": config.NUM_EPOCHS,
             "architecture": "ResNet10",
             "aug_mode": getattr(config, 'AUG_MODE', 'none'),
-            "class_aware_sampling": getattr(config, 'CLASS_AWARE_SAMPLING', False),
         }
     )
 

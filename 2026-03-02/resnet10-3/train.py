@@ -13,8 +13,8 @@ def compute_entropy_loss(cam):
     p = torch.exp(log_p)
     # entropy per pixel: - sum_c p * log_p
     ent = - (p * log_p).sum(dim=1) # (B, H, W)
-    # mean over pixels and batch
-    return ent.mean()
+    # mean over pixels, return per sample
+    return ent.mean(dim=(1, 2))
 
 def compute_concentration_loss(cam, target_a, target_b):
     # cam: (B, C, H, W)
@@ -38,7 +38,7 @@ def compute_concentration_loss(cam, target_a, target_b):
     active_classes = (y_a + y_b > 0).float()
     
     loss_con = (loss_c * active_classes).sum(dim=1)
-    return loss_con.mean()
+    return loss_con
 
 # Validation function
 def validate(model, val_loader, criterion, device):
@@ -138,12 +138,28 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             loss_cls = (loss_1 * lam + loss_2 * (1. - lam)).mean()
             
             # Additional MixUp CAM Weakly Supervised Semantic Segmentation losses
-            loss_ent = compute_entropy_loss(cam)
-            loss_con = compute_concentration_loss(cam, target_a, target_b)
+            # We only apply these to the mixed samples, not the reality samples (lam == 1s or 0s)
+            loss_ent_per_sample = compute_entropy_loss(cam)
+            loss_con_per_sample = compute_concentration_loss(cam, target_a, target_b)
+            
+            if isinstance(lam, torch.Tensor):
+                is_mixed = ((lam > 0.0) & (lam < 1.0)).float()
+            else:
+                is_mixed = torch.tensor(1.0 if (lam > 0.0 and lam < 1.0) else 0.0, device=device)
             
             # Weight lambdas for the extra losses
             lam_ent = getattr(config, 'LAMBDA_ENT', 0.1)
             lam_con = getattr(config, 'LAMBDA_CON', 0.1)
+            
+            # Mask out non-mixed samples and take sum over batch / max(1, mixed_count)
+            # This ensures reality samples have 0 penalty for ent/con diverge
+            mixed_count = is_mixed.sum()
+            if mixed_count > 0:
+                loss_ent = (loss_ent_per_sample * is_mixed).sum() / mixed_count
+                loss_con = (loss_con_per_sample * is_mixed).sum() / mixed_count
+            else:
+                loss_ent = 0.0
+                loss_con = 0.0
             
             loss = loss_cls + lam_ent * loss_ent + lam_con * loss_con
             

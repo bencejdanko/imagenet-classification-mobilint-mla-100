@@ -126,7 +126,11 @@ def plot_gradcam_samples(images, masks, labels, model, device, num_samples=5):
         # Original Image
         plt.subplot(num_samples, 2, 2*i + 1)
         plt.imshow(img)
-        plt.title(f"True Label: {labels[i].item()}")
+        
+        # Handle soft labels
+        true_label = labels[i].argmax().item() if labels[i].numel() > 1 else labels[i].item()
+        
+        plt.title(f"True Label: {true_label}")
         plt.axis('off')
         
         # Overlayed GRAD-CAM

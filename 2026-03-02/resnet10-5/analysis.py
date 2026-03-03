@@ -47,9 +47,15 @@ def get_predictions(model, loader, device):
         for images, labels in loader:
             images = images.to(device)
             outputs = model(images)
+            if isinstance(outputs, tuple):
+                outputs = outputs[0]
             _, preds = torch.max(outputs, 1)
             
             all_preds.extend(preds.cpu().numpy())
+            
+            # Handle soft labels created by mixup/cutmix
+            if labels.ndim > 1:
+                labels = labels.argmax(dim=1)
             all_labels.extend(labels.numpy())
             
     return np.array(all_labels), np.array(all_preds)

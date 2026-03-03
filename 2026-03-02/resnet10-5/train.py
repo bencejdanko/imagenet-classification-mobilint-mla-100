@@ -142,7 +142,10 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             # Track Train Acc
             _, predicted = logits.max(1)
             total_train += labels.size(0)
-            correct_train += predicted.eq(labels).sum().item()
+            
+            # Handle soft labels created by mixup/cutmix
+            target_labels = labels.argmax(dim=1) if labels.ndim == 2 else labels
+            correct_train += predicted.eq(target_labels).sum().item()
 
         # --- Validation ---
         eval_model = ema_model if use_ema else model

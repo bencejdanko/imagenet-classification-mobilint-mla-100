@@ -27,7 +27,7 @@ class Config:
     
     # Mix augmentations
     USE_MIX_AUGMENTATIONS = True
-    MIX_ALPHA = 0.2
+    MIX_ALPHA = 0.1
     
     # WandB and Checkpointing
     WANDB_PROJECT = 'resnet10-imagenet-20'

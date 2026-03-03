@@ -7,14 +7,19 @@ class Config:
     VAL_IMAGE_ROOT = os.path.join(BASE_DIR, 'imagenet_val20')
     VAL_LIST = os.path.join(BASE_DIR, 'imagenet_val20.txt')
 
-    BATCH_SIZE = 1024
+    BATCH_SIZE = 64
     NUM_CLASSES = 20
     INPUT_SHAPE = (240, 240)
-    NUM_EPOCHS = 30
+    NUM_EPOCHS = 100
     LEARNING_RATE = 0.001
     
+    # Cosine Annealing Warm Restarts
+    T_0 = 2
+    T_MULT = 1
+    ETA_MIN = 1e-5
+    
     # Training variations
-    AUG_MODE = 'mixup' # Options: 'none', 'mixup', 'cutmix', 'fmix', 'resizemix', 'hmix'
+    LABEL_SMOOTHING = 0.1
     
     # WandB and Checkpointing
     WANDB_PROJECT = 'resnet10-imagenet-20'

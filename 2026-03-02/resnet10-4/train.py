@@ -2,43 +2,10 @@ import os
 import torch
 import torch.nn as nn
 import wandb
-from augmentation import get_dataloaders, BatchAugmentor
+from augmentation import get_dataloaders
 from init_hyperparameters import initialize_training
 from config import Config
 import torch.nn.functional as F
-
-def compute_entropy_loss(cam):
-    # cam: (B, C, H, W)
-    log_p = F.log_softmax(cam, dim=1)
-    p = torch.exp(log_p)
-    # entropy per pixel: - sum_c p * log_p
-    ent = - (p * log_p).sum(dim=1) # (B, H, W)
-    # mean over pixels, return per sample
-    return ent.mean(dim=(1, 2))
-
-def compute_concentration_loss(cam, target_a, target_b):
-    # cam: (B, C, H, W)
-    A = F.relu(cam)
-    A_sum = A.sum(dim=(2,3), keepdim=True) + 1e-8
-    M_hat = A / A_sum
-    
-    B, C, H, W = A.shape
-    h_idx = torch.arange(H, device=cam.device, dtype=cam.dtype).view(1, 1, H, 1)
-    w_idx = torch.arange(W, device=cam.device, dtype=cam.dtype).view(1, 1, 1, W)
-    
-    mu_h = (M_hat * h_idx).sum(dim=(2,3), keepdim=True)
-    mu_w = (M_hat * w_idx).sum(dim=(2,3), keepdim=True)
-    
-    dist_sq = (h_idx - mu_h)**2 + (w_idx - mu_w)**2
-    # loss_c: (B, C)
-    loss_c = (dist_sq * M_hat).sum(dim=(2,3))
-    
-    y_a = F.one_hot(target_a, num_classes=C).float()
-    y_b = F.one_hot(target_b, num_classes=C).float()
-    active_classes = (y_a + y_b > 0).float()
-    
-    loss_con = (loss_c * active_classes).sum(dim=1)
-    return loss_con
 
 # Validation function
 def validate(model, val_loader, criterion, device):
@@ -84,9 +51,16 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
         except Exception as e:
             print(f"Could not load checkpoint: {e}")
 
-    criterion_cls = nn.CrossEntropyLoss()
-    criterion_batch = nn.CrossEntropyLoss(reduction='none')
-    batch_augmentor = BatchAugmentor(mode=getattr(config, 'AUG_MODE', 'none'), p=0.5)
+    label_smoothing = getattr(config, 'LABEL_SMOOTHING', 0.0)
+    criterion_cls = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+    
+    # Initialize Scheduler
+    t_0 = getattr(config, 'T_0', 10)
+    t_mult = getattr(config, 'T_MULT', 1)
+    eta_min = getattr(config, 'ETA_MIN', 1e-5)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer, T_0=t_0, T_mult=t_mult, eta_min=eta_min
+    )
     
     # Initialize WandB
     wandb.init(
@@ -97,7 +71,11 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             "batch_size": config.BATCH_SIZE,
             "epochs": config.NUM_EPOCHS,
             "architecture": "ResNet10",
-            "aug_mode": getattr(config, 'AUG_MODE', 'none'),
+            "aug_mode": "trivialaugment",
+            "label_smoothing": label_smoothing,
+            "T_0": t_0,
+            "T_MULT": t_mult,
+            "ETA_MIN": eta_min,
         }
     )
 
@@ -125,43 +103,17 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             images = images.to(device)
             labels = labels.to(device)
 
-            images, target_a, target_b, lam = batch_augmentor(images, labels)
-
             optimizer.zero_grad()
 
             # Forward Pass
-            logits, cam = model(images, return_cam=True)
+            outputs = model(images)
+            if isinstance(outputs, tuple):
+                logits = outputs[0]
+            else:
+                logits = outputs
 
             # Calculate Loss
-            loss_1 = criterion_batch(logits, target_a)
-            loss_2 = criterion_batch(logits, target_b)
-            loss_cls = (loss_1 * lam + loss_2 * (1. - lam)).mean()
-            
-            # Additional MixUp CAM Weakly Supervised Semantic Segmentation losses
-            # We only apply these to the mixed samples, not the reality samples (lam == 1s or 0s)
-            loss_ent_per_sample = compute_entropy_loss(cam)
-            loss_con_per_sample = compute_concentration_loss(cam, target_a, target_b)
-            
-            if isinstance(lam, torch.Tensor):
-                is_mixed = ((lam > 0.0) & (lam < 1.0)).float()
-            else:
-                is_mixed = torch.tensor(1.0 if (lam > 0.0 and lam < 1.0) else 0.0, device=device)
-            
-            # Weight lambdas for the extra losses
-            lam_ent = getattr(config, 'LAMBDA_ENT', 0.1)
-            lam_con = getattr(config, 'LAMBDA_CON', 0.1)
-            
-            # Mask out non-mixed samples and take sum over batch / max(1, mixed_count)
-            # This ensures reality samples have 0 penalty for ent/con diverge
-            mixed_count = is_mixed.sum()
-            if mixed_count > 0:
-                loss_ent = (loss_ent_per_sample * is_mixed).sum() / mixed_count
-                loss_con = (loss_con_per_sample * is_mixed).sum() / mixed_count
-            else:
-                loss_ent = 0.0
-                loss_con = 0.0
-            
-            loss = loss_cls + lam_ent * loss_ent + lam_con * loss_con
+            loss = criterion_cls(logits, labels)
             
             running_loss += loss.item()
 
@@ -171,8 +123,7 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             # Track Train Acc
             _, predicted = logits.max(1)
             total_train += labels.size(0)
-            dominant_target = torch.where(lam > 0.5, target_a, target_b)
-            correct_train += predicted.eq(dominant_target).sum().item()
+            correct_train += predicted.eq(labels).sum().item()
 
         # --- Validation ---
         val_loss, val_acc = validate(model, val_loader, criterion_cls, device)
@@ -191,8 +142,11 @@ def run_training(model=None, optimizer=None, device=None, train_loader=None, val
             "train_loss": train_loss,
             "train_acc": train_acc,
             "val_loss": val_loss,
-            "val_acc": val_acc
+            "val_acc": val_acc,
+            "lr": scheduler.get_last_lr()[0]
         })
+
+        scheduler.step()
 
         # --- Checkpointing ---
         if config.SAVE_MODEL:

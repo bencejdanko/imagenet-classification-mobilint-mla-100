@@ -18,8 +18,16 @@ class Config:
     T_MULT = 2
     ETA_MIN = 1e-5
     
+    # EMA configuration
+    USE_EMA = True
+    EMA_DECAY = 0.999
+    
     # Training variations
     LABEL_SMOOTHING = 0.1
+    
+    # Mix augmentations
+    USE_MIX_AUGMENTATIONS = True
+    MIX_ALPHA = 0.2
     
     # WandB and Checkpointing
     WANDB_PROJECT = 'resnet10-imagenet-20'

@@ -28,7 +28,22 @@ def get_dataloaders():
     print("Loading datasets...")
     train_dataset = ImageNet20Dataset(txt_file=config.TRAIN_LIST, root_dir=config.IMAGE_ROOT, transform=train_transform)
 
-    train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
+    use_mix = getattr(config, 'USE_MIX_AUGMENTATIONS', False)
+    if use_mix:
+        from torchvision.transforms import v2
+        from torch.utils.data import default_collate
+        mix_alpha = getattr(config, 'MIX_ALPHA', 0.2)
+        cutmix = v2.CutMix(num_classes=config.NUM_CLASSES, alpha=mix_alpha)
+        mixup = v2.MixUp(num_classes=config.NUM_CLASSES, alpha=mix_alpha)
+        cutmix_or_mixup = v2.RandomChoice([cutmix, mixup])
+
+        def collate_fn(batch):
+            return cutmix_or_mixup(*default_collate(batch))
+
+        train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, shuffle=True, collate_fn=collate_fn)
+    else:
+        train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
+        
     print(f"Training dataset loaded: {len(train_dataset)} images found.")
 
     val_dataset = ImageNet20Dataset(txt_file=config.VAL_LIST, root_dir=config.VAL_IMAGE_ROOT, transform=transform_val)

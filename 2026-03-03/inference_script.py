@@ -22,9 +22,9 @@ DATA_DIR = "data"
 # Download Models
 # -----------------------------
 print(f"Downloading models from {MODEL_REPO}...")
-MXQ_PATH = hf_hub_download(repo_id=MODEL_REPO, filename="simple_imagenet20_model.mxq")
-ONNX_PATH = hf_hub_download(repo_id=MODEL_REPO, filename="simple_imagenet20_model.onnx")
-ONNX_DATA_PATH = hf_hub_download(repo_id=MODEL_REPO, filename="simple_imagenet20_model.onnx.data")
+MXQ_PATH = hf_hub_download(repo_id=MODEL_REPO, filename="imagenetsub20resnet10-5-calibrated.mxq")
+ONNX_PATH = hf_hub_download(repo_id=MODEL_REPO, filename="imagenetsub20resnet10-5.onnx")
+ONNX_DATA_PATH = hf_hub_download(repo_id=MODEL_REPO, filename="imagenetsub20resnet10-5.onnx.data")
 
 # -----------------------------
 # Download and Prepare Dataset
@@ -122,7 +122,6 @@ for img in test_images:
 
     pred_class = int(np.argmax(logits))
     cpu_preds.append(pred_class)
-    print(f"Predicted class (ONNX): {pred_class}")
 
 cpu_mean = statistics.mean(cpu_times)
 
@@ -146,24 +145,15 @@ for img, gt in zip(test_images, labels):
     out = model.infer([img])[0]
     out = np.asarray(out)
 
-    print("Output shape:", out.shape)
-    print("Output dtype:", out.dtype)
-
-
     # Flatten batch dimensions safely
     if out.ndim > 1:
         out = out.reshape(out.shape[0], -1)
         logits = out[0]
     else:
         logits = out
-    
-    print("Output shape:", out.shape)
-    print("Output dtype:", out.dtype)
 
     npu_times.append((time.perf_counter() - start) * 1000)
     pred = int(np.argmax(logits))
-
-    print(f"Predicted: {pred}, Actual: {gt}")
 
     npu_correct += int(pred == gt)
 

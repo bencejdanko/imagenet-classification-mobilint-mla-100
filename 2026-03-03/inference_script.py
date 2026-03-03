@@ -92,7 +92,7 @@ for fname, label in samples:
     test_images.append(load_image(fname))
     labels.append(label)
 
-print(labels)
+# print(labels)
 
 # -----------------------------
 # CPU Inference (Onnx runtime)
@@ -165,6 +165,10 @@ model.dispose()
 # -----------------------------
 # Results
 # -----------------------------
-print(f"CPU: {cpu_mean:.2f} ms/image ({1000/cpu_mean:.1f} img/sec)")
-print(f"NPU: {npu_mean:.2f} ms/image ({1000/npu_mean:.1f} img/sec)")
+cpu_correct = sum(1 for p, g in zip(cpu_preds, labels) if p == g)
+cpu_acc = cpu_correct / len(labels)
+
+print(f"\nFinal Results on {len(labels)} images:")
+print(f"CPU Performance: {cpu_mean:.2f} ms/image ({1000/cpu_mean:.1f} img/sec), Accuracy: {cpu_acc*100:.2f}%")
+print(f"NPU Performance: {npu_mean:.2f} ms/image ({1000/npu_mean:.1f} img/sec), Accuracy: {npu_acc*100:.2f}%")
 print(f"Speedup: {cpu_mean/npu_mean:.1f}x")

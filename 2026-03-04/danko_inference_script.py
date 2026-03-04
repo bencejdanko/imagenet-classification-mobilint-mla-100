@@ -35,12 +35,11 @@ if not os.path.exists(IMAGE_ROOT):
     with zipfile.ZipFile(val_zip_path, 'r') as zip_ref:
         zip_ref.extractall(DATA_DIR)
 
-# Adjust for potential nested folder in zip (original script used .../imagenet_val20/imagenet_val20)
 if os.path.exists(os.path.join(IMAGE_ROOT, "imagenet_val20")):
     IMAGE_ROOT = os.path.join(IMAGE_ROOT, "imagenet_val20")
 
 
-NUM_IMAGES = None   # set None for full validation
+NUM_IMAGES = None
 
 # Load validation list
 samples = []

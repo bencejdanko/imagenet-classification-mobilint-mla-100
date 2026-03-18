@@ -4,4 +4,4 @@ This repository is meant to track snapshots in developments for developing an Im
 
 ## Final Results
 
-
+You can see a full report at https://bence.openwear.ai/imagenet-mla100/
